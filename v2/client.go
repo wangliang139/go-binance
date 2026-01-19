@@ -194,6 +194,7 @@ const (
 	UserDataEventTypeBalanceUpdate           UserDataEventType = "balanceUpdate"
 	UserDataEventTypeExecutionReport         UserDataEventType = "executionReport"
 	UserDataEventTypeListStatus              UserDataEventType = "ListStatus"
+	UserDataEventTypeExternalLockUpdate      UserDataEventType = "externalLockUpdate"
 
 	MarginTransferTypeToMargin MarginTransferType = 1
 	MarginTransferTypeToMain   MarginTransferType = 2

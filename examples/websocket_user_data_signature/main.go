@@ -95,6 +95,11 @@ func main() {
 			fmt.Printf("  List Status: %s\n", event.OCOUpdate.ListStatusType)
 			fmt.Printf("  List Order Status: %s\n", event.OCOUpdate.ListOrderStatus)
 
+		case binance.UserDataEventTypeExternalLockUpdate:
+			fmt.Printf("External Lock Update:\n")
+			fmt.Printf("  Asset: %s\n", event.ExternalLockUpdate.Asset)
+			fmt.Printf("  Delta: %s\n", event.ExternalLockUpdate.Delta)
+			fmt.Printf("  Transaction Time: %d\n", event.ExternalLockUpdate.TransactionTime)
 		default:
 			fmt.Printf("Unknown event type: %s\n", event.Event)
 		}

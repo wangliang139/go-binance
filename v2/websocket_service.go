@@ -478,8 +478,10 @@ type WsAggTradeEvent struct {
 }
 
 // WsTradeHandler handle websocket trade event
-type WsTradeHandler func(event *WsTradeEvent)
-type WsCombinedTradeHandler func(event *WsCombinedTradeEvent)
+type (
+	WsTradeHandler         func(event *WsTradeEvent)
+	WsCombinedTradeHandler func(event *WsCombinedTradeEvent)
+)
 
 // WsTradeServe serve websocket handler with a symbol
 func WsTradeServe(symbol string, handler WsTradeHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
@@ -538,12 +540,13 @@ type WsCombinedTradeEvent struct {
 
 // WsUserDataEvent define user data event
 type WsUserDataEvent struct {
-	Event         UserDataEventType `json:"e"`
-	Time          int64             `json:"E"`
-	AccountUpdate WsAccountUpdateList
-	BalanceUpdate WsBalanceUpdate
-	OrderUpdate   WsOrderUpdate
-	OCOUpdate     WsOCOUpdate
+	Event              UserDataEventType `json:"e"`
+	Time               int64             `json:"E"`
+	AccountUpdate      WsAccountUpdateList
+	BalanceUpdate      WsBalanceUpdate
+	OrderUpdate        WsOrderUpdate
+	OCOUpdate          WsOCOUpdate
+	ExternalLockUpdate WsExternalLockUpdate
 }
 
 type WsAccountUpdateList struct {
@@ -597,7 +600,7 @@ type WsOrderUpdate struct {
 	QuoteVolume             string          `json:"Q"`
 	SelfTradePreventionMode string          `json:"V"`
 
-	//These are fields that appear in the payload only if certain conditions are met.
+	// These are fields that appear in the payload only if certain conditions are met.
 	TrailingDelta              int64  `json:"d"` // Appears only for trailing stop orders.
 	TrailingTime               int64  `json:"D"`
 	StrategyId                 int64  `json:"j"` // Appears only if the strategyId parameter was provided upon order placement.
@@ -638,6 +641,12 @@ type WsOCOOrder struct {
 	Symbol        string `json:"s"`
 	OrderId       int64  `json:"i"`
 	ClientOrderId string `json:"c"`
+}
+
+type WsExternalLockUpdate struct {
+	Asset           string `json:"a"`
+	Delta           string `json:"d"`
+	TransactionTime int64  `json:"T"`
 }
 
 // WsUserDataHandler handle WsUserDataEvent
@@ -849,6 +858,16 @@ func WsUserDataServeSignature(apiKey, secretKey string, keyType string, timeOffs
 				}
 			case UserDataEventTypeListStatus:
 				if err = json.Unmarshal(payload, &event.OCOUpdate); err != nil {
+					select {
+					case <-stopC:
+						continue
+					default:
+						errHandler(err)
+						continue
+					}
+				}
+			case UserDataEventTypeExternalLockUpdate:
+				if err = json.Unmarshal(payload, &event.ExternalLockUpdate); err != nil {
 					select {
 					case <-stopC:
 						continue
