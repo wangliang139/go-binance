@@ -765,11 +765,6 @@ func (c *Client) NewApiTradingStatusService() *ApiTradingStatusService {
 	return &ApiTradingStatusService{c: c}
 }
 
-// NewListOpenAlgoOrdersService init list open algo orders service
-func (c *Client) NewListOpenAlgoOrdersService() *ListOpenAlgoOrdersService {
-	return &ListOpenAlgoOrdersService{c: c}
-}
-
 // NewCreateAlgoOrderService init create algo order service
 func (c *Client) NewCreateAlgoOrderService() *CreateAlgoOrderService {
 	return newCreateAlgoOrderService(c)
