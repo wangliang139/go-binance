@@ -776,6 +776,21 @@ func WsUserDataServeSignature(apiKey, secretKey string, keyType string, timeOffs
 				continue
 			}
 
+			// Check error message
+			if j.Get("status").MustInt() != 200 {
+				if err, ok := j.CheckGet("error"); ok {
+					errCode := err.Get("code").MustInt()
+					errMsg := err.Get("msg").MustString()
+					select {
+					case <-stopC:
+						continue
+					default:
+						errHandler(fmt.Errorf("%d: %s", errCode, errMsg))
+						continue
+					}
+				}
+			}
+
 			// Some WS API pushes wrap the payload inside an envelope like "event", "result" or "data".
 			// Determine the actual event payload to unmarshal from.
 			payload := message
