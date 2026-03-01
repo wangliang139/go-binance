@@ -204,6 +204,7 @@ func NewProxiedClient(apiKey, secretKey, proxyUrl string) *Client {
 		SecretKey: secretKey,
 		KeyType:   common.KeyTypeHmac,
 		UserAgent: "Binance/golang",
+		ProxyUrl:  proxyUrl,
 		HTTPClient: &http.Client{
 			Transport: tr,
 		},
@@ -265,15 +266,11 @@ func (c *Client) getWsEndpoint() string {
 	return BaseWsMainUrl
 }
 
-func (c *Client) getWsProxyUrl() *string {
+func (c *Client) getProxyUrl() *string {
 	if c.ProxyUrl == "" {
 		return nil
 	}
 	return &c.ProxyUrl
-}
-
-func (c *Client) SetWsProxyUrl(url string) {
-	c.ProxyUrl = url
 }
 
 func (c *Client) debug(format string, v ...any) {

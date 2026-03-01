@@ -63,7 +63,7 @@ func (s *websocketServiceTestSuite) testWsUserDataServe(data []byte, expectedEve
 		expectedEvent: expectedEvent,
 	}
 
-	doneC, stopC, err := WsUserDataServe("fakeListenKey", handler,
+	doneC, stopC, err := s.client.WsUserDataServe("fakeListenKey", handler,
 		func(err error) {
 			s.r().EqualError(err, fakeErrMsg)
 		})

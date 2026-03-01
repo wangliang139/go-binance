@@ -246,7 +246,8 @@ func NewProxiedClient(apiKey, secretKey, proxyUrl string) *Client {
 		HTTPClient: &http.Client{
 			Transport: tr,
 		},
-		Logger: log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
+		ProxyUrl: proxyUrl,
+		Logger:   log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
 	}
 }
 
@@ -266,7 +267,7 @@ type Client struct {
 	Debug      bool
 	Logger     *log.Logger
 	TimeOffset int64
-	WsProxyUrl string
+	ProxyUrl   string
 
 	do doFunc
 
@@ -293,15 +294,11 @@ func (c *Client) getApiEndpoint() string {
 	return BaseApiMainUrl
 }
 
-func (c *Client) getWsProxyUrl() *string {
-	if c.WsProxyUrl == "" {
+func (c *Client) getProxyUrl() *string {
+	if c.ProxyUrl == "" {
 		return nil
 	}
-	return &c.WsProxyUrl
-}
-
-func (c *Client) SetWsProxyUrl(url string) {
-	c.WsProxyUrl = url
+	return &c.ProxyUrl
 }
 
 // getWsApiEndpoint return the base endpoint of the API WS according the UseTestnet flag

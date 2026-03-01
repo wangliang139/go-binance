@@ -63,7 +63,7 @@ func (c *Client) WsPartialDepthServe100Ms(symbol string, levels string, handler 
 
 // WsPartialDepthServe serve websocket partial depth handler with a symbol
 func (c *Client) wsPartialDepthServe(endpoint string, symbol string, handler WsPartialDepthHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
 		if err != nil {
@@ -103,7 +103,7 @@ func (c *Client) WsCombinedPartialDepthServe(symbolLevels map[string]string, han
 		endpoint += fmt.Sprintf("%s@depth%s", strings.ToLower(s), l) + "/"
 	}
 	endpoint = endpoint[:len(endpoint)-1]
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
 		if err != nil {
@@ -157,7 +157,7 @@ func (c *Client) WsDepthServe100Ms(symbol string, handler WsDepthHandler, errHan
 
 // WsDepthServe serve websocket depth handler with an arbitrary endpoint address
 func (c *Client) wsDepthServe(endpoint string, handler WsDepthHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
 		if err != nil {
@@ -224,7 +224,7 @@ func (c *Client) WsCombinedDepthServe100Ms(symbols []string, handler WsDepthHand
 }
 
 func (c *Client) wsCombinedDepthServe(endpoint string, handler WsDepthHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
 		if err != nil {
@@ -273,7 +273,7 @@ func (c *Client) WsCombinedKlineServe(symbolIntervalPair map[string]string, hand
 		endpoint += fmt.Sprintf("%s@kline_%s", strings.ToLower(symbol), interval) + "/"
 	}
 	endpoint = endpoint[:len(endpoint)-1]
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
 		if err != nil {
@@ -310,7 +310,7 @@ func (c *Client) WsCombinedKlineServeMultiInterval(symbolIntervals map[string][]
 		}
 	}
 	endpoint = endpoint[:len(endpoint)-1]
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
 		if err != nil {
@@ -341,7 +341,7 @@ func (c *Client) WsCombinedKlineServeMultiInterval(symbolIntervals map[string][]
 // WsKlineServe serve websocket kline handler with a symbol and interval like 15m, 30s
 func (c *Client) WsKlineServe(symbol string, interval string, handler WsKlineHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	endpoint := fmt.Sprintf("%s/%s@kline_%s", c.getWsEndpoint(), strings.ToLower(symbol), interval)
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		event := new(WsKlineEvent)
 		err := json.Unmarshal(message, event)
@@ -388,7 +388,7 @@ type WsAggTradeHandler func(event *WsAggTradeEvent)
 // WsAggTradeServe serve websocket aggregate handler with a symbol
 func (c *Client) WsAggTradeServe(symbol string, handler WsAggTradeHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	endpoint := fmt.Sprintf("%s/%s@aggTrade", c.getWsEndpoint(), strings.ToLower(symbol))
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		event := new(WsAggTradeEvent)
 		err := json.Unmarshal(message, event)
@@ -408,7 +408,7 @@ func (c *Client) WsCombinedAggTradeServe(symbols []string, handler WsAggTradeHan
 		endpoint += fmt.Sprintf("%s@aggTrade", strings.ToLower(symbols[s])) + "/"
 	}
 	endpoint = endpoint[:len(endpoint)-1]
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
 		if err != nil {
@@ -461,7 +461,7 @@ type (
 // WsTradeServe serve websocket handler with a symbol
 func (c *Client) WsTradeServe(symbol string, handler WsTradeHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	endpoint := fmt.Sprintf("%s/%s@trade", c.getWsEndpoint(), strings.ToLower(symbol))
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		event := new(WsTradeEvent)
 		err := json.Unmarshal(message, event)
@@ -480,7 +480,7 @@ func (c *Client) WsCombinedTradeServe(symbols []string, handler WsCombinedTradeH
 		endpoint += fmt.Sprintf("%s@trade/", strings.ToLower(s))
 	}
 	endpoint = endpoint[:len(endpoint)-1]
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		event := new(WsCombinedTradeEvent)
 		err := json.Unmarshal(message, event)
@@ -631,7 +631,7 @@ type WsUserDataHandler func(event *WsUserDataEvent)
 // Deprecated: Listen key management is deprecated. Use WsUserDataServeSignature instead.
 func (c *Client) WsUserDataServe(listenKey string, handler WsUserDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	endpoint := fmt.Sprintf("%s/%s", c.getWsEndpoint(), listenKey)
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
 		if err != nil {
@@ -683,7 +683,7 @@ func (c *Client) WsUserDataServe(listenKey string, handler WsUserDataHandler, er
 // This is the recommended method as listen key management has been deprecated by Binance.
 // It connects to the WebSocket API endpoint and subscribes to user data stream using signature authentication.
 func (c *Client) WsUserDataServeSignature(keyType string, timeOffset int64, handler WsUserDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	cfg := newWsConfig(c.getWsApiEndpoint(), c.getWsProxyUrl())
+	cfg := newWsConfig(c.getWsApiEndpoint(), c.getProxyUrl())
 
 	doneC = make(chan struct{})
 	stopC = make(chan struct{})
@@ -894,7 +894,7 @@ func (c *Client) WsCombinedMarketStatServe(symbols []string, handler WsMarketSta
 		endpoint += fmt.Sprintf("%s@ticker", strings.ToLower(symbols[s])) + "/"
 	}
 	endpoint = endpoint[:len(endpoint)-1]
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 
 	wsHandler := func(message []byte) {
 		j, err := newJSON(message)
@@ -927,7 +927,7 @@ func (c *Client) WsCombinedMarketStatServe(symbols []string, handler WsMarketSta
 // WsMarketStatServe serve websocket that push 24hr statistics for single market every second
 func (c *Client) WsMarketStatServe(symbol string, handler WsMarketStatHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	endpoint := fmt.Sprintf("%s/%s@ticker", c.getWsEndpoint(), strings.ToLower(symbol))
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		var event WsMarketStatEvent
 		err := json.Unmarshal(message, &event)
@@ -946,7 +946,7 @@ type WsAllMarketsStatHandler func(event WsAllMarketsStatEvent)
 // WsAllMarketsStatServe serve websocket that push 24hr statistics for all market every second
 func (c *Client) WsAllMarketsStatServe(handler WsAllMarketsStatHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	endpoint := fmt.Sprintf("%s/!ticker@arr", c.getWsEndpoint())
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		var event WsAllMarketsStatEvent
 		err := json.Unmarshal(message, &event)
@@ -995,7 +995,7 @@ type WsAllMiniMarketsStatServeHandler func(event WsAllMiniMarketsStatEvent)
 // WsAllMiniMarketsStatServe serve websocket that push mini version of 24hr statistics for all market every second
 func (c *Client) WsAllMiniMarketsStatServe(handler WsAllMiniMarketsStatServeHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	endpoint := fmt.Sprintf("%s/!miniTicker@arr", c.getWsEndpoint())
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		var event WsAllMiniMarketsStatEvent
 		err := json.Unmarshal(message, &event)
@@ -1045,7 +1045,7 @@ type WsBookTickerHandler func(event *WsBookTickerEvent)
 // WsBookTickerServe serve websocket that pushes updates to the best bid or ask price or quantity in real-time for a specified symbol.
 func (c *Client) WsBookTickerServe(symbol string, handler WsBookTickerHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	endpoint := fmt.Sprintf("%s/%s@bookTicker", c.getWsEndpoint(), strings.ToLower(symbol))
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		event := new(WsBookTickerEvent)
 		err := json.Unmarshal(message, &event)
@@ -1065,7 +1065,7 @@ func (c *Client) WsCombinedBookTickerServe(symbols []string, handler WsBookTicke
 		endpoint += fmt.Sprintf("%s@bookTicker", strings.ToLower(s)) + "/"
 	}
 	endpoint = endpoint[:len(endpoint)-1]
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		event := new(WsCombinedBookTickerEvent)
 		err := json.Unmarshal(message, event)
@@ -1081,7 +1081,7 @@ func (c *Client) WsCombinedBookTickerServe(symbols []string, handler WsBookTicke
 // WsAllBookTickerServe serve websocket that pushes updates to the best bid or ask price or quantity in real-time for all symbols.
 func (c *Client) WsAllBookTickerServe(handler WsBookTickerHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	endpoint := fmt.Sprintf("%s/!bookTicker", c.getWsEndpoint())
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		event := new(WsBookTickerEvent)
 		err := json.Unmarshal(message, &event)
@@ -1096,7 +1096,7 @@ func (c *Client) WsAllBookTickerServe(handler WsBookTickerHandler, errHandler Er
 
 // WsApiInitReadWriteConn create and serve connection
 func (c *Client) WsApiInitReadWriteConn() (*gorilla.Conn, error) {
-	cfg := newWsConfig(c.getWsApiEndpoint(), c.getWsProxyUrl())
+	cfg := newWsConfig(c.getWsApiEndpoint(), c.getProxyUrl())
 	conn, err := WsGetReadWriteConnection(cfg)
 	if err != nil {
 		return nil, err
@@ -1146,7 +1146,7 @@ func (c *Client) WsAnnouncementServe(params WsAnnouncementParam, handler WsAnnou
 		BaseWsAnnouncementURL, params.Random, params.Topic, params.RecvWindow, params.Timestamp, params.Signature,
 	)
 
-	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	cfg.Header.Set("X-MBX-APIKEY", params.ApiKey)
 	wsHandler := func(message []byte) {
 		event := struct {

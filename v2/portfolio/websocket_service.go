@@ -21,24 +21,7 @@ var (
 	// WebsocketTimeoutReadWriteConnection is an interval for sending ping/pong messages if WebsocketKeepalive is enabled
 	// using for websocket API (read/write)
 	WebsocketTimeoutReadWriteConnection = time.Second * 10
-	ProxyUrl                            = ""
 )
-
-func getWsProxyUrl() *string {
-	if ProxyUrl == "" {
-		return nil
-	}
-	return &ProxyUrl
-}
-
-func SetWsProxyUrl(url string) {
-	ProxyUrl = url
-}
-
-// getWsEndpoint return the base endpoint of the WS according the UseTestnet flag
-func getWsEndpoint() string {
-	return BaseWsMainUrl
-}
 
 // WsUserDataEvent define user data event
 type WsUserDataEvent struct {
@@ -546,9 +529,9 @@ func wsUserDataHandler(handler WsUserDataHandler) func(message []byte) {
 }
 
 // WsUserDataServe enhanced with automatic listen key renewal
-func WsUserDataServe(listenKey string, handler WsUserDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := fmt.Sprintf("%s/ws/%s", getWsEndpoint(), listenKey)
-	cfg := newWsConfig(endpoint)
+func (c *Client) WsUserDataServe(listenKey string, handler WsUserDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/ws/%s", c.getWsEndpoint(), listenKey)
+	cfg := newWsConfig(endpoint, c.getProxyUrl())
 	wsHandler := func(message []byte) {
 		var event struct {
 			EventType string `json:"e"`

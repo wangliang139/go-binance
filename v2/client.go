@@ -386,7 +386,8 @@ func NewProxiedClient(apiKey, secretKey, proxyUrl string) *Client {
 		HTTPClient: &http.Client{
 			Transport: tr,
 		},
-		Logger: log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
+		ProxyUrl: proxyUrl,
+		Logger:   log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
 	}
 }
 
@@ -420,8 +421,7 @@ type Client struct {
 	Logger     *log.Logger
 	TimeOffset int64
 
-	// ws params
-	WsProxyUrl string
+	ProxyUrl string
 
 	do doFunc
 
@@ -437,15 +437,11 @@ func (c *Client) SetUseDemo() {
 	c.UseDemo = true
 }
 
-func (c *Client) SetWsProxyUrl(url string) {
-	c.WsProxyUrl = url
-}
-
-func (c *Client) getWsProxyUrl() *string {
-	if c.WsProxyUrl == "" {
+func (c *Client) getProxyUrl() *string {
+	if c.ProxyUrl == "" {
 		return nil
 	}
-	return &c.WsProxyUrl
+	return &c.ProxyUrl
 }
 
 // getCombinedEndpoint return the base endpoint of the combined stream according the UseTestnet flag
@@ -1514,4 +1510,3 @@ func (c *Client) NewSimpleEarnService() *SimpleEarnService {
 func (c *Client) NewDualInvestmentService() *DualInvestmentService {
 	return &DualInvestmentService{c: c}
 }
-

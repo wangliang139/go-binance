@@ -127,7 +127,7 @@ type CMPosition struct {
 // Endpoints
 var (
 	BaseApiMainUrl = "https://papi.binance.com"
-	//BaseApiTestnetUrl = "https://testnet.binancefuture.com"
+	// BaseApiTestnetUrl = "https://testnet.binancefuture.com"
 )
 
 // Global enums
@@ -270,11 +270,6 @@ func newJSON(data []byte) (j *simplejson.Json, err error) {
 	return j, nil
 }
 
-// getApiEndpoint return the base endpoint of the WS according the UseTestnet flag
-func getApiEndpoint() string {
-	return BaseApiMainUrl
-}
-
 // NewClient initialize an API client instance with API key and secret key.
 // You should always call this function before using this SDK.
 // Services will be created by the form client.NewXXXService().
@@ -283,7 +278,6 @@ func NewClient(apiKey, secretKey string) *Client {
 		APIKey:     apiKey,
 		SecretKey:  secretKey,
 		KeyType:    common.KeyTypeHmac,
-		BaseURL:    getApiEndpoint(),
 		UserAgent:  "Binance/golang",
 		HTTPClient: http.DefaultClient,
 		Logger:     log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
@@ -304,8 +298,8 @@ func NewProxiedClient(apiKey, secretKey, proxyUrl string) *Client {
 		APIKey:    apiKey,
 		SecretKey: secretKey,
 		KeyType:   common.KeyTypeHmac,
-		BaseURL:   getApiEndpoint(),
 		UserAgent: "Binance/golang",
+		ProxyUrl:  proxyUrl,
 		HTTPClient: &http.Client{
 			Transport: tr,
 		},
@@ -320,16 +314,34 @@ type Client struct {
 	APIKey     string
 	SecretKey  string
 	KeyType    string
-	BaseURL    string
 	UserAgent  string
 	HTTPClient *http.Client
 	Debug      bool
 	Logger     *log.Logger
 	TimeOffset int64
-	do         doFunc
+	ProxyUrl   string
+
+	do doFunc
 
 	UsedWeight common.UsedWeight
 	OrderCount common.OrderCount
+}
+
+// getApiEndpoint return the base endpoint of the WS according the UseTestnet flag
+func (c *Client) getApiEndpoint() string {
+	return BaseApiMainUrl
+}
+
+func (c *Client) getProxyUrl() *string {
+	if c.ProxyUrl == "" {
+		return nil
+	}
+	return &c.ProxyUrl
+}
+
+// getWsEndpoint return the base endpoint of the WS according the UseTestnet flag
+func (c *Client) getWsEndpoint() string {
+	return BaseWsMainUrl
 }
 
 func (c *Client) debug(format string, v ...any) {
@@ -348,7 +360,7 @@ func (c *Client) parseRequest(r *request, opts ...RequestOption) (err error) {
 		return err
 	}
 
-	fullURL := fmt.Sprintf("%s%s", c.BaseURL, r.endpoint)
+	fullURL := fmt.Sprintf("%s%s", c.getApiEndpoint(), r.endpoint)
 	if r.recvWindow > 0 {
 		r.setParam(recvWindowKey, r.recvWindow)
 	}
@@ -454,7 +466,6 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 	}
 	return data, &res.Header, nil
 }
-
 
 // --------- Market Data ---------
 
