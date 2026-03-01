@@ -33,7 +33,9 @@ func SetupTest(t *testing.T) *baseIntegrationTestSuite {
 	}
 
 	client.Debug = true
-	UseTestnet = useTestnet // Set the global testnet flag
+	if useTestnet {
+		client.SetUseTestnet()
+	}
 
 	return &baseIntegrationTestSuite{
 		client: client,

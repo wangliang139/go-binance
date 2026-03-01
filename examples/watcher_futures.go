@@ -11,10 +11,10 @@ import (
 )
 
 func WatchFuturesUserDataStream() {
-	futures.UseDemo = true
 	apiKey := ""
 	secret := ""
 	client := binance.NewFuturesClient(apiKey, secret)
+	client.SetUseDemo()
 
 	listenKey, err := client.NewStartUserStreamService().Do(context.Background())
 	if err != nil {
@@ -36,7 +36,7 @@ func WatchFuturesUserDataStream() {
 		panic(err)
 	}
 
-	doneC, stopC, err := futures.WsUserDataServe(listenKey, userDataHandler, errHandler)
+	doneC, stopC, err := client.WsUserDataServe(listenKey, userDataHandler, errHandler)
 	if err != nil {
 		fmt.Println(err)
 		return

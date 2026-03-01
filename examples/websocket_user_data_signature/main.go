@@ -25,7 +25,6 @@ func main() {
 
 	// Enable testnet mode if requested
 	if useTestnet {
-		binance.UseTestnet = true
 		fmt.Println("🧪 Running in TESTNET mode")
 		fmt.Println("Testnet WebSocket API: wss://ws-api.testnet.binance.vision/ws-api/v3")
 	} else {
@@ -125,9 +124,11 @@ func main() {
 
 	// Subscribe to user data stream using signature-based authentication
 	// This is the recommended method as listen key management has been deprecated
-	doneC, stopC, err := binance.WsUserDataServeSignature(
-		apiKey,
-		secretKey,
+	c := binance.NewClient(apiKey, secretKey)
+	if useTestnet {
+		c.SetUseTestnet()
+	}
+	doneC, stopC, err := c.WsUserDataServeSignature(
 		keyType,
 		timeOffset,
 		userDataHandler,
@@ -144,13 +145,10 @@ func main() {
 
 	// Place a small MARKET order after subscribing (uses WebSocket API order.place)
 	// Adjust symbol/amount as needed, especially if not on testnet.
-	orderWs, err := binance.NewOrderCreateWsService(apiKey, secretKey)
+	orderWs, err := c.NewOrderCreateWsApiService()
 	if err != nil {
 		log.Printf("Failed to init order WS service: %v", err)
 	} else {
-		orderWs.KeyType = keyType
-		orderWs.TimeOffset = timeOffset
-
 		req := binance.NewOrderCreateWsRequest().
 			Symbol("BTCUSDT").
 			Side(binance.SideTypeBuy).

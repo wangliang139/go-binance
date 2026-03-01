@@ -80,7 +80,7 @@ type SelfTradePreventionMode string
 var (
 	BaseApiMainUrl    = "https://fapi.binance.com"
 	BaseApiTestnetUrl = "https://testnet.binancefuture.com"
-	BaseApiDemoURL    = "https://testnet.binancefuture.com"
+	BaseApiDemoURL    = "https://demo-fapi.binance.com"
 )
 
 // Global enums
@@ -214,17 +214,6 @@ func newJSON(data []byte) (j *simplejson.Json, err error) {
 	return j, nil
 }
 
-// getApiEndpoint return the base endpoint of the WS according the UseTestnet flag
-func getApiEndpoint() string {
-	if UseTestnet {
-		return BaseApiTestnetUrl
-	}
-	if UseDemo {
-		return BaseApiDemoURL
-	}
-	return BaseApiMainUrl
-}
-
 // NewClient initialize an API client instance with API key and secret key.
 // You should always call this function before using this SDK.
 // Services will be created by the form client.NewXXXService().
@@ -233,7 +222,6 @@ func NewClient(apiKey, secretKey string) *Client {
 		APIKey:     apiKey,
 		SecretKey:  secretKey,
 		KeyType:    common.KeyTypeHmac,
-		BaseURL:    getApiEndpoint(),
 		UserAgent:  "Binance/golang",
 		HTTPClient: http.DefaultClient,
 		Logger:     log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
@@ -254,7 +242,6 @@ func NewProxiedClient(apiKey, secretKey, proxyUrl string) *Client {
 		APIKey:    apiKey,
 		SecretKey: secretKey,
 		KeyType:   common.KeyTypeHmac,
-		BaseURL:   getApiEndpoint(),
 		UserAgent: "Binance/golang",
 		HTTPClient: &http.Client{
 			Transport: tr,
@@ -267,19 +254,87 @@ type doFunc func(req *http.Request) (*http.Response, error)
 
 // Client define API client
 type Client struct {
-	APIKey     string
-	SecretKey  string
-	KeyType    string
-	BaseURL    string
+	APIKey    string
+	SecretKey string
+	KeyType   string
+	// UseTestnet switch all the WS streams from production to the testnet
+	UseTestnet bool
+	// UseDemo switch all the WS streams from production to the demo
+	UseDemo    bool
 	UserAgent  string
 	HTTPClient *http.Client
 	Debug      bool
 	Logger     *log.Logger
 	TimeOffset int64
-	do         doFunc
+	WsProxyUrl string
+
+	do doFunc
 
 	UsedWeight common.UsedWeight
 	OrderCount common.OrderCount
+}
+
+func (c *Client) SetUseTestnet() {
+	c.UseTestnet = true
+}
+
+func (c *Client) SetUseDemo() {
+	c.UseDemo = true
+}
+
+// getApiEndpoint return the base endpoint of the WS according the UseTestnet flag
+func (c *Client) getApiEndpoint() string {
+	if c.UseTestnet {
+		return BaseApiTestnetUrl
+	}
+	if c.UseDemo {
+		return BaseApiDemoURL
+	}
+	return BaseApiMainUrl
+}
+
+func (c *Client) getWsProxyUrl() *string {
+	if c.WsProxyUrl == "" {
+		return nil
+	}
+	return &c.WsProxyUrl
+}
+
+func (c *Client) SetWsProxyUrl(url string) {
+	c.WsProxyUrl = url
+}
+
+// getWsApiEndpoint return the base endpoint of the API WS according the UseTestnet flag
+func (c *Client) getWsApiEndpoint() string {
+	if c.UseTestnet {
+		return BaseWsApiTestnetURL
+	}
+	if c.UseDemo {
+		return BaseWsApiDemoURL
+	}
+	return BaseWsApiMainURL
+}
+
+// getWsEndpoint return the base endpoint of the WS according the UseTestnet flag
+func (c *Client) getWsEndpoint() string {
+	if c.UseTestnet {
+		return BaseWsTestnetUrl
+	}
+	if c.UseDemo {
+		return BaseWsDemoURL
+	}
+	return BaseWsMainUrl
+}
+
+// getCombinedEndpoint return the base endpoint of the combined stream according the UseTestnet flag
+func (c *Client) getCombinedEndpoint() string {
+	if c.UseTestnet {
+		return BaseCombinedTestnetURL
+	}
+	if c.UseDemo {
+		return BaseCombinedDemoURL
+	}
+	return BaseCombinedMainURL
 }
 
 func (c *Client) debug(format string, v ...any) {
@@ -298,7 +353,7 @@ func (c *Client) parseRequest(r *request, opts ...RequestOption) (err error) {
 		return err
 	}
 
-	fullURL := fmt.Sprintf("%s%s", c.BaseURL, r.endpoint)
+	fullURL := fmt.Sprintf("%s%s", c.getApiEndpoint(), r.endpoint)
 	if r.recvWindow > 0 {
 		r.setParam(recvWindowKey, r.recvWindow)
 	}
@@ -404,12 +459,6 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 		return nil, &res.Header, apiErr
 	}
 	return data, &res.Header, nil
-}
-
-// SetApiEndpoint set api Endpoint
-func (c *Client) SetApiEndpoint(url string) *Client {
-	c.BaseURL = url
-	return c
 }
 
 // NewPingService init ping service

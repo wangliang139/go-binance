@@ -10,7 +10,6 @@ import (
 )
 
 func SpotOrder() {
-	binance.UseTestnet = true
 	apiKey := ""
 	secret := ""
 	client := binance.NewClient(apiKey, secret)
@@ -32,7 +31,6 @@ func SpotOrder() {
 }
 
 func FuturesOrder() {
-	futures.UseTestnet = true
 	apiKey := ""
 	secret := ""
 	client := binance.NewFuturesClient(apiKey, secret)
@@ -55,7 +53,6 @@ func FuturesOrder() {
 }
 
 func DeliveryOrder() {
-	delivery.UseTestnet = true
 	apiKey := ""
 	secret := ""
 	client := binance.NewDeliveryClient(apiKey, secret)

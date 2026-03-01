@@ -73,7 +73,8 @@ func (s *websocketServiceTestSuite) TestPartialDepthServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsPartialDepthServe("ETHBTC", "5", func(event *WsPartialDepthEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsPartialDepthServe("ETHBTC", "5", func(event *WsPartialDepthEvent) {
 		e := &WsPartialDepthEvent{
 			Symbol:       "ETHBTC",
 			LastUpdateID: 160,
@@ -123,7 +124,8 @@ func (s *websocketServiceTestSuite) TestPartialDepthServe100Ms() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsPartialDepthServe100Ms("ETHBTC", "5", func(event *WsPartialDepthEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsPartialDepthServe100Ms("ETHBTC", "5", func(event *WsPartialDepthEvent) {
 		e := &WsPartialDepthEvent{
 			Symbol:       "ETHBTC",
 			LastUpdateID: 160,
@@ -179,7 +181,8 @@ func (s *websocketServiceTestSuite) TestCombinedPartialDepthServe() {
 	fakeErrMsg := "fake error"
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
-	doneC, stopC, err := WsCombinedPartialDepthServe(symbolLevels, func(event *WsPartialDepthEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsCombinedPartialDepthServe(symbolLevels, func(event *WsPartialDepthEvent) {
 		e := &WsPartialDepthEvent{
 			Symbol:       "ETHUSDT",
 			LastUpdateID: 160,
@@ -256,7 +259,8 @@ func (s *websocketServiceTestSuite) TestDepthServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsDepthServe("ETHBTC", func(event *WsDepthEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsDepthServe("ETHBTC", func(event *WsDepthEvent) {
 		e := &WsDepthEvent{
 			Event:         "depthUpdate",
 			Time:          1499404630606,
@@ -329,7 +333,8 @@ func (s *websocketServiceTestSuite) TestDepthServe100Ms() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsDepthServe100Ms("ETHBTC", func(event *WsDepthEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsDepthServe100Ms("ETHBTC", func(event *WsDepthEvent) {
 		e := &WsDepthEvent{
 			Event:         "depthUpdate",
 			Time:          1499404630606,
@@ -402,7 +407,8 @@ func (s *websocketServiceTestSuite) TestCombinedDepthServe() {
 	fakeErrMsg := "fake error"
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
-	doneC, stopC, err := WsCombinedDepthServe(symbols, func(event *WsDepthEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsCombinedDepthServe(symbols, func(event *WsDepthEvent) {
 		e := &WsDepthEvent{
 			Symbol:        "BTCUSDT",
 			Time:          1629769560797,
@@ -454,7 +460,8 @@ func (s *websocketServiceTestSuite) TestCombinedDepthServe100Ms() {
 	fakeErrMsg := "fake error"
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
-	doneC, stopC, err := WsCombinedDepthServe100Ms(symbols, func(event *WsDepthEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsCombinedDepthServe100Ms(symbols, func(event *WsDepthEvent) {
 		e := &WsDepthEvent{
 			Symbol:        "BTCUSDT",
 			Time:          1629769560797,
@@ -516,7 +523,8 @@ func (s *websocketServiceTestSuite) TestKlineServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsKlineServe("ETHBTC", "1m", func(event *WsKlineEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsKlineServe("ETHBTC", "1m", func(event *WsKlineEvent) {
 		e := &WsKlineEvent{
 			Event:  "kline",
 			Time:   1499404907056,
@@ -591,7 +599,8 @@ func (s *websocketServiceTestSuite) TestWsAggTradeServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsAggTradeServe("ETHBTC", func(event *WsAggTradeEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsAggTradeServe("ETHBTC", func(event *WsAggTradeEvent) {
 		e := &WsAggTradeEvent{
 			Event:                 "aggTrade",
 			Time:                  1499405254326,
@@ -647,7 +656,8 @@ func (s *websocketServiceTestSuite) TestWsCombinedKlineServe() {
 	input := map[string]string{
 		"ETHBTC": "1m",
 	}
-	doneC, stopC, err := WsCombinedKlineServe(input, func(event *WsKlineEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsCombinedKlineServe(input, func(event *WsKlineEvent) {
 		e := &WsKlineEvent{
 			Event:  "kline",
 			Time:   1499404907056,
@@ -714,7 +724,8 @@ func (s *websocketServiceTestSuite) TestWsCombinedKlineServeMultiInterval() {
 	input := map[string][]string{
 		"ETHBTC": {"1m", "5m"},
 	}
-	doneC, stopC, err := WsCombinedKlineServeMultiInterval(input, func(event *WsKlineEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsCombinedKlineServeMultiInterval(input, func(event *WsKlineEvent) {
 		e := &WsKlineEvent{
 			Event:  "kline",
 			Time:   1499404907056,
@@ -768,7 +779,8 @@ func (s *websocketServiceTestSuite) TestWsCombinedAggTradeServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsCombinedAggTradeServe([]string{"ETHBTC"}, func(event *WsAggTradeEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsCombinedAggTradeServe([]string{"ETHBTC"}, func(event *WsAggTradeEvent) {
 		e := &WsAggTradeEvent{
 			Event:                 "aggTrade",
 			Time:                  1499405254326,
@@ -889,7 +901,8 @@ func (s *websocketServiceTestSuite) testWsUserDataServe(data []byte, expectedEve
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsUserDataServe("fakeListenKey", func(event *WsUserDataEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsUserDataServe("fakeListenKey", func(event *WsUserDataEvent) {
 		s.assertUserDataEvent(expectedEvent, event)
 	}, func(err error) {
 		s.r().EqualError(err, fakeErrMsg)
@@ -931,7 +944,7 @@ func (s *websocketServiceTestSuite) TestWsUserDataServeAccountUpdate() {
 }
 
 func (s *websocketServiceTestSuite) TestWsUserDataServeOrderUpdateWithExample() {
-	//Using example data from the API documentation
+	// Using example data from the API documentation
 	data := []byte(`{
           "e":  "executionReport",
           "E":  1499405658658,
@@ -1042,8 +1055,9 @@ func (s *websocketServiceTestSuite) TestWsUserDataServeOrderUpdateWithExample() 
 	}
 	s.testWsUserDataServe(data, expectedEvent)
 }
+
 func (s *websocketServiceTestSuite) TestWsUserDataServeOrderUpdateWithPendingOrder() {
-	//Use pending order data
+	// Use pending order data
 	data := []byte(`{
           "e":  "executionReport",
           "E":  1709393629467,
@@ -1122,7 +1136,7 @@ func (s *websocketServiceTestSuite) TestWsUserDataServeOrderUpdateWithPendingOrd
 }
 
 func (s *websocketServiceTestSuite) TestWsUserDataServeOrderUpdateWithTradeOrder() {
-	//Use trade order data
+	// Use trade order data
 	data := []byte(`{
           "e":  "executionReport",
           "E":  1709393640518,
@@ -1230,7 +1244,8 @@ func (s *websocketServiceTestSuite) TestWsMarketStatServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsMarketStatServe("BNBBTC", func(event *WsMarketStatEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsMarketStatServe("BNBBTC", func(event *WsMarketStatEvent) {
 		e := &WsMarketStatEvent{
 			Event:              "24hrTicker",
 			Time:               123456789,
@@ -1298,7 +1313,8 @@ func (s *websocketServiceTestSuite) TestWsCombinedMarketStatServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsCombinedMarketStatServe([]string{"BNBBTC"}, func(event *WsMarketStatEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsCombinedMarketStatServe([]string{"BNBBTC"}, func(event *WsMarketStatEvent) {
 		e := &WsMarketStatEvent{
 			Event:              "24hrTicker",
 			Time:               123456789,
@@ -1414,7 +1430,8 @@ func (s *websocketServiceTestSuite) TestWsAllMarketsStatServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsAllMarketsStatServe(func(event WsAllMarketsStatEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsAllMarketsStatServe(func(event WsAllMarketsStatEvent) {
 		e := WsAllMarketsStatEvent{
 			&WsMarketStatEvent{
 				Event:              "24hrTicker",
@@ -1500,7 +1517,8 @@ func (s *websocketServiceTestSuite) TestWsTradeServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsTradeServe("BNBBTC", func(event *WsTradeEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsTradeServe("BNBBTC", func(event *WsTradeEvent) {
 		e := &WsTradeEvent{
 			Event:         "trade",
 			Time:          123456789,
@@ -1563,7 +1581,8 @@ func (s *websocketServiceTestSuite) TestWsCombinedTradeServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsCombinedTradeServe([]string{"BNBBTC"}, func(event *WsCombinedTradeEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsCombinedTradeServe([]string{"BNBBTC"}, func(event *WsCombinedTradeEvent) {
 		e := &WsCombinedTradeEvent{
 			Stream: "bnbbtc@trade",
 			Data: WsTradeEvent{
@@ -1615,7 +1634,8 @@ func (s *websocketServiceTestSuite) TestWsAllMiniMarketsStatServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsAllMiniMarketsStatServe(func(event WsAllMiniMarketsStatEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsAllMiniMarketsStatServe(func(event WsAllMiniMarketsStatEvent) {
 		e := WsAllMiniMarketsStatEvent{
 			&WsMiniMarketsStatEvent{
 				Event:       "24hrMiniTicker",
@@ -1682,7 +1702,8 @@ func (s *websocketServiceTestSuite) TestBookTickerServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsBookTickerServe("BTCUSD_200626", func(event *WsBookTickerEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsBookTickerServe("BTCUSD_200626", func(event *WsBookTickerEvent) {
 		e := &WsBookTickerEvent{
 			UpdateID:     17242169,
 			Symbol:       "BTCUSD_200626",
@@ -1716,7 +1737,8 @@ func (s *websocketServiceTestSuite) TestAllBookTickerServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsAllBookTickerServe(func(event *WsBookTickerEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsAllBookTickerServe(func(event *WsBookTickerEvent) {
 		e := &WsBookTickerEvent{
 			UpdateID:     17242169,
 			Symbol:       "BTCUSD_200626",
@@ -1757,7 +1779,8 @@ func (s *websocketServiceTestSuite) TestWsAnnouncementServe() {
 	s.mockWsServe(data, errors.New(fakeErrMsg))
 	defer s.assertWsServe()
 
-	doneC, stopC, err := WsAnnouncementServe(WsAnnouncementParam{}, func(event *WsAnnouncementEvent) {
+	c := NewClient("", "")
+	doneC, stopC, err := c.WsAnnouncementServe(WsAnnouncementParam{}, func(event *WsAnnouncementEvent) {
 		e := &WsAnnouncementEvent{
 			CatalogID:   161,
 			CatalogName: "Delisting",
@@ -1799,7 +1822,9 @@ func (s *websocketServiceTestSuite) TestWsUserDataServeSignatureErrorWithEmptyCr
 	errHandler := func(err error) {
 	}
 
-	_, _, err := WsUserDataServeSignature(apiKey, secretKey, keyType, timeOffset, handler, errHandler)
+	c := NewClient(apiKey, secretKey)
+
+	_, _, err := c.WsUserDataServeSignature(keyType, timeOffset, handler, errHandler)
 
 	s.r().Error(err)
 }

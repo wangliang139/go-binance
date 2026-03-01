@@ -18,8 +18,8 @@ type OrderStatusWsService struct {
 }
 
 // NewOrderStatusWsService init OrderStatusWsService
-func NewOrderStatusWsService(apiKey, secretKey string) (*OrderStatusWsService, error) {
-	conn, err := websocket.NewConnection(WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
+func (c *Client) NewOrderStatusWsService() (*OrderStatusWsService, error) {
+	conn, err := websocket.NewConnection(c.WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
 	if err != nil {
 		return nil, err
 	}
@@ -31,8 +31,8 @@ func NewOrderStatusWsService(apiKey, secretKey string) (*OrderStatusWsService, e
 
 	return &OrderStatusWsService{
 		c:         client,
-		ApiKey:    apiKey,
-		SecretKey: secretKey,
+		ApiKey:    c.APIKey,
+		SecretKey: c.SecretKey,
 		KeyType:   common.KeyTypeHmac,
 	}, nil
 }

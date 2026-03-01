@@ -29,7 +29,7 @@ func (s *orderListPlaceDeprecatedServiceWsTestSuite) SetupTest() {
 	s.ctrl = gomock.NewController(s.T())
 	s.client = mock.NewMockClient(s.ctrl)
 
-	s.orderListPlace = &OrderListPlaceWsService{
+	s.orderListPlace = &OrderListPlaceWsApiService{
 		c:         s.client,
 		ApiKey:    s.apiKey,
 		SecretKey: s.secretKey,
@@ -68,7 +68,7 @@ type orderListPlaceDeprecatedServiceWsTestSuite struct {
 	stopPrice         string
 	listClientOrderID string
 
-	orderListPlace        *OrderListPlaceWsService
+	orderListPlace        *OrderListPlaceWsApiService
 	orderListPlaceRequest *OrderListPlaceWsRequest
 }
 
@@ -205,7 +205,7 @@ func (s *orderListPlaceDeprecatedServiceWsTestSuite) TestOrderListPlaceSync_Empt
 }
 
 func (s *orderListPlaceDeprecatedServiceWsTestSuite) reset(apiKey, secretKey, signKeyType string, timeOffset int64) {
-	s.orderListPlace = &OrderListPlaceWsService{
+	s.orderListPlace = &OrderListPlaceWsApiService{
 		c:          s.client,
 		ApiKey:     apiKey,
 		SecretKey:  secretKey,

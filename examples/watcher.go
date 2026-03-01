@@ -9,9 +9,8 @@ import (
 )
 
 func WatchMiniMarketsStat() {
-	binance.UseTestnet = true
-
-	doneC, stopC, err := binance.WsAllMiniMarketsStatServe(func(event binance.WsAllMiniMarketsStatEvent) {
+	client := AppConfig.GetClient()
+	doneC, stopC, err := client.WsAllMiniMarketsStatServe(func(event binance.WsAllMiniMarketsStatEvent) {
 		fmt.Printf("got %d events\n", len(event))
 	}, func(err error) {
 		fmt.Printf("%v", err)

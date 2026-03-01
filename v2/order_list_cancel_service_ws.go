@@ -8,8 +8,8 @@ import (
 	"github.com/adshao/go-binance/v2/common/websocket"
 )
 
-// OrderListCancelWsService cancels order list
-type OrderListCancelWsService struct {
+// OrderListCancelWsApiService cancels order list
+type OrderListCancelWsApiService struct {
 	c          websocket.Client
 	ApiKey     string
 	SecretKey  string
@@ -18,8 +18,8 @@ type OrderListCancelWsService struct {
 }
 
 // NewOrderListCancelWsService init OrderListCancelWsService
-func NewOrderListCancelWsService(apiKey, secretKey string) (*OrderListCancelWsService, error) {
-	conn, err := websocket.NewConnection(WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
+func (c *Client) NewOrderListCancelWsApiService() (*OrderListCancelWsApiService, error) {
+	conn, err := websocket.NewConnection(c.WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
 	if err != nil {
 		return nil, err
 	}
@@ -29,10 +29,10 @@ func NewOrderListCancelWsService(apiKey, secretKey string) (*OrderListCancelWsSe
 		return nil, err
 	}
 
-	return &OrderListCancelWsService{
+	return &OrderListCancelWsApiService{
 		c:         client,
-		ApiKey:    apiKey,
-		SecretKey: secretKey,
+		ApiKey:    c.APIKey,
+		SecretKey: c.SecretKey,
 		KeyType:   common.KeyTypeHmac,
 	}, nil
 }
@@ -76,7 +76,7 @@ func (s *OrderListCancelWsRequest) buildParams() params {
 }
 
 // Do - sends 'orderList.cancel' request
-func (s *OrderListCancelWsService) Do(requestID string, request *OrderListCancelWsRequest) error {
+func (s *OrderListCancelWsApiService) Do(requestID string, request *OrderListCancelWsRequest) error {
 	rawData, err := websocket.CreateRequest(
 		websocket.NewRequestData(
 			requestID,
@@ -100,7 +100,7 @@ func (s *OrderListCancelWsService) Do(requestID string, request *OrderListCancel
 }
 
 // SyncDo - sends 'orderList.cancel' request and receives response
-func (s *OrderListCancelWsService) SyncDo(requestID string, request *OrderListCancelWsRequest) (*CancelOrderListWsResponse, error) {
+func (s *OrderListCancelWsApiService) SyncDo(requestID string, request *OrderListCancelWsRequest) (*CancelOrderListWsResponse, error) {
 	rawData, err := websocket.CreateRequest(
 		websocket.NewRequestData(
 			requestID,
@@ -130,22 +130,22 @@ func (s *OrderListCancelWsService) SyncDo(requestID string, request *OrderListCa
 }
 
 // ReceiveAllDataBeforeStop waits until all responses will be received from websocket until timeout expired
-func (s *OrderListCancelWsService) ReceiveAllDataBeforeStop(timeout time.Duration) {
+func (s *OrderListCancelWsApiService) ReceiveAllDataBeforeStop(timeout time.Duration) {
 	s.c.Wait(timeout)
 }
 
 // GetReadChannel returns channel with API response data (including API errors)
-func (s *OrderListCancelWsService) GetReadChannel() <-chan []byte {
+func (s *OrderListCancelWsApiService) GetReadChannel() <-chan []byte {
 	return s.c.GetReadChannel()
 }
 
 // GetReadErrorChannel returns channel with errors which are occurred while reading websocket connection
-func (s *OrderListCancelWsService) GetReadErrorChannel() <-chan error {
+func (s *OrderListCancelWsApiService) GetReadErrorChannel() <-chan error {
 	return s.c.GetReadErrorChannel()
 }
 
 // GetReconnectCount returns count of reconnect attempts by client
-func (s *OrderListCancelWsService) GetReconnectCount() int64 {
+func (s *OrderListCancelWsApiService) GetReconnectCount() int64 {
 	return s.c.GetReconnectCount()
 }
 

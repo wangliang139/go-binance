@@ -26,7 +26,7 @@ func (s *orderListCancelServiceWsTestSuite) SetupTest() {
 	s.ctrl = gomock.NewController(s.T())
 	s.client = mock.NewMockClient(s.ctrl)
 
-	s.orderListCancel = &OrderListCancelWsService{
+	s.orderListCancel = &OrderListCancelWsApiService{
 		c:         s.client,
 		ApiKey:    s.apiKey,
 		SecretKey: s.secretKey,
@@ -58,7 +58,7 @@ type orderListCancelServiceWsTestSuite struct {
 	orderListID       int64
 	listClientOrderID string
 
-	orderListCancel        *OrderListCancelWsService
+	orderListCancel        *OrderListCancelWsApiService
 	orderListCancelRequest *OrderListCancelWsRequest
 }
 
@@ -195,7 +195,7 @@ func (s *orderListCancelServiceWsTestSuite) TestOrderListCancelSync_EmptySignKey
 }
 
 func (s *orderListCancelServiceWsTestSuite) reset(apiKey, secretKey, signKeyType string, timeOffset int64) {
-	s.orderListCancel = &OrderListCancelWsService{
+	s.orderListCancel = &OrderListCancelWsApiService{
 		c:          s.client,
 		ApiKey:     apiKey,
 		SecretKey:  secretKey,

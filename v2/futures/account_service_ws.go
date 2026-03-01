@@ -18,8 +18,8 @@ type WsAccountService struct {
 	RecvWindow int64
 }
 
-func NewWsAccountService(apiKey, secretKey string, recvWindow ...int64) (*WsAccountService, error) {
-	conn, err := websocket.NewConnection(WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
+func (c *Client) NewWsAccountService(recvWindow ...int64) (*WsAccountService, error) {
+	conn, err := websocket.NewConnection(c.WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
 	if err != nil {
 		return nil, err
 	}
@@ -36,8 +36,8 @@ func NewWsAccountService(apiKey, secretKey string, recvWindow ...int64) (*WsAcco
 
 	return &WsAccountService{
 		c:          client,
-		ApiKey:     apiKey,
-		SecretKey:  secretKey,
+		ApiKey:     c.APIKey,
+		SecretKey:  c.SecretKey,
 		KeyType:    common.KeyTypeHmac,
 		RecvWindow: window,
 	}, nil
@@ -170,10 +170,6 @@ func (s *WsAccountService) GetReadErrorChannel() <-chan error {
 // GetReconnectCount returns count of reconnect attempts by client
 func (s *WsAccountService) GetReconnectCount() int64 {
 	return s.c.GetReconnectCount()
-}
-
-func (c *Client) NewWsAccountService(recvWindow ...int64) (*WsAccountService, error) {
-	return NewWsAccountService(c.APIKey, c.SecretKey, recvWindow...)
 }
 
 // GetAccountInfoWs Get account info by websocket like RESTful

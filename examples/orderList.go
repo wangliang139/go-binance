@@ -44,9 +44,6 @@ import (
 
 // OrderListPlaceOCO demonstrates creating an OCO order using WebSocket API
 func OrderListPlaceOCO() {
-	// Setup configuration
-	AppConfig.SetupTestnet()
-
 	// Validate configuration
 	if err := AppConfig.Validate(); err != nil {
 		fmt.Printf("Configuration error: %v\n", err)
@@ -56,7 +53,7 @@ func OrderListPlaceOCO() {
 	client := AppConfig.GetClient()
 
 	// Create OCO WebSocket service
-	service, err := client.NewOrderListCreateWsService()
+	service, err := client.NewOrderListCreateWsApiService()
 	if err != nil {
 		fmt.Printf("Error creating OCO service: %v\n", err)
 		return
@@ -108,9 +105,6 @@ func OrderListPlaceOCO() {
 
 // OrderListPlaceOTO demonstrates creating an OTO order using WebSocket API
 func OrderListPlaceOTO() {
-	// Setup configuration
-	AppConfig.SetupTestnet()
-
 	// Validate configuration
 	if err := AppConfig.Validate(); err != nil {
 		fmt.Printf("Configuration error: %v\n", err)
@@ -120,7 +114,7 @@ func OrderListPlaceOTO() {
 	client := AppConfig.GetClient()
 
 	// Create OTO WebSocket service
-	service, err := client.NewOrderListPlaceOtoWsService()
+	service, err := client.NewOrderListPlaceOtoWsApiService()
 	if err != nil {
 		fmt.Printf("Error creating OTO service: %v\n", err)
 		return
@@ -154,9 +148,6 @@ func OrderListPlaceOTO() {
 
 // OrderListPlaceOTOCO demonstrates creating an OTOCO order using WebSocket API
 func OrderListPlaceOTOCO() {
-	// Setup configuration
-	AppConfig.SetupTestnet()
-
 	// Validate configuration
 	if err := AppConfig.Validate(); err != nil {
 		fmt.Printf("Configuration error: %v\n", err)
@@ -166,7 +157,7 @@ func OrderListPlaceOTOCO() {
 	client := AppConfig.GetClient()
 
 	// Create OTOCO WebSocket service
-	service, err := client.NewOrderListPlaceOtocoWsService()
+	service, err := client.NewOrderListPlaceOtocoWsApiService()
 	if err != nil {
 		fmt.Printf("Error creating OTOCO service: %v\n", err)
 		return
@@ -202,9 +193,6 @@ func OrderListPlaceOTOCO() {
 
 // OrderListCancel demonstrates canceling an order list using WebSocket API
 func OrderListCancel() {
-	// Setup configuration
-	AppConfig.SetupTestnet()
-
 	// Validate configuration
 	if err := AppConfig.Validate(); err != nil {
 		fmt.Printf("Configuration error: %v\n", err)
@@ -214,7 +202,7 @@ func OrderListCancel() {
 	client := AppConfig.GetClient()
 
 	// Create order list cancel WebSocket service
-	service, err := client.NewOrderListCancelWsService()
+	service, err := client.NewOrderListCancelWsApiService()
 	if err != nil {
 		fmt.Printf("Error creating cancel service: %v\n", err)
 		return
@@ -239,9 +227,6 @@ func OrderListCancel() {
 
 // SorOrderPlace demonstrates placing a SOR order using WebSocket API
 func SorOrderPlace() {
-	// Setup configuration
-	AppConfig.SetupTestnet()
-
 	// Validate configuration
 	if err := AppConfig.Validate(); err != nil {
 		fmt.Printf("Configuration error: %v\n", err)
@@ -251,7 +236,7 @@ func SorOrderPlace() {
 	client := AppConfig.GetClient()
 
 	// Create SOR order placement WebSocket service
-	service, err := client.NewSorOrderPlaceWsService()
+	service, err := client.NewSorOrderPlaceWsApiService()
 	if err != nil {
 		fmt.Printf("Error creating SOR service: %v\n", err)
 		return
@@ -289,9 +274,6 @@ func SorOrderPlace() {
 
 // SorOrderTest demonstrates testing a SOR order using WebSocket API
 func SorOrderTest() {
-	// Setup configuration
-	AppConfig.SetupTestnet()
-
 	// Validate configuration
 	if err := AppConfig.Validate(); err != nil {
 		fmt.Printf("Configuration error: %v\n", err)
@@ -301,7 +283,7 @@ func SorOrderTest() {
 	client := AppConfig.GetClient()
 
 	// Create SOR order test WebSocket service
-	service, err := client.NewSorOrderTestWsService()
+	service, err := client.NewSorOrderTestWsApiService()
 	if err != nil {
 		fmt.Printf("Error creating SOR test service: %v\n", err)
 		return

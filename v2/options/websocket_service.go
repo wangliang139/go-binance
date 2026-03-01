@@ -25,46 +25,7 @@ var (
 	WebsocketPongTimeout = time.Second * 10
 	// WebsocketKeepalive enables sending ping/pong messages to check the connection stability
 	WebsocketKeepalive = true
-	// UseTestnet switch all the WS streams from production to the testnet
-	UseTestnet = false
-	// UseDemo switch all the WS streams from production to the demo
-	UseDemo = false
-
-	ProxyUrl = ""
 )
-
-// getWsEndpoint return the base endpoint of the WS according the UseTestnet flag
-func getWsEndpoint() string {
-	if UseTestnet {
-		return baseWsTestnetUrl
-	}
-	if UseDemo {
-		return baseWsDemoUrl
-	}
-	return baseWsMainUrl
-}
-
-func getWsProxyUrl() *string {
-	if ProxyUrl == "" {
-		return nil
-	}
-	return &ProxyUrl
-}
-
-func SetWsProxyUrl(url string) {
-	ProxyUrl = url
-}
-
-// getCombinedEndpoint return the base endpoint of the combined stream according the UseTestnet flag
-func getCombinedEndpoint() string {
-	if UseTestnet {
-		return baseCombinedTestnetURL
-	}
-	if UseDemo {
-		return baseCombinedDemoURL
-	}
-	return baseCombinedMainURL
-}
 
 type WsTradeEvent struct {
 	Event     string `json:"e"`
@@ -221,9 +182,9 @@ func wsTradeServeHandler(message []byte, handler WsTradeHandler, errHandler ErrH
 }
 
 // WsTradeServe serve websocket that push trade information that is aggregated for a single taker order.
-func WsTradeServe(symbol string, handler WsTradeHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := fmt.Sprintf("%s/%s@trade", getWsEndpoint(), strings.ToUpper(symbol))
-	cfg := newWsConfig(endpoint)
+func (c *Client) WsTradeServe(symbol string, handler WsTradeHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/%s@trade", c.getWsEndpoint(), strings.ToUpper(symbol))
+	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
 	wsHandler := func(message []byte) {
 		wsTradeServeHandler(message, handler, errHandler)
 	}
@@ -249,9 +210,9 @@ func wsIndexServeHandler(message []byte, handler WsIndexHandler, errHandler ErrH
 }
 
 // WsIndexServe serve websocket that push trade information that is aggregated for a single taker order.
-func WsIndexServe(symbol string, handler WsIndexHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := fmt.Sprintf("%s/%s@index", getWsEndpoint(), strings.ToUpper(symbol))
-	cfg := newWsConfig(endpoint)
+func (c *Client) WsIndexServe(symbol string, handler WsIndexHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/%s@index", c.getWsEndpoint(), strings.ToUpper(symbol))
+	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
 	wsHandler := func(message []byte) {
 		wsIndexServeHandler(message, handler, errHandler)
 	}
@@ -276,9 +237,9 @@ func wsMarkPriceServeHandler(message []byte, handler WsMarkPriceHandler, errHand
 	handler(event)
 }
 
-func WsMarkPriceServe(symbol string, handler WsMarkPriceHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := fmt.Sprintf("%s/%s@markPrice", getWsEndpoint(), strings.ToUpper(symbol))
-	cfg := newWsConfig(endpoint)
+func (c *Client) WsMarkPriceServe(symbol string, handler WsMarkPriceHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/%s@markPrice", c.getWsEndpoint(), strings.ToUpper(symbol))
+	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
 	wsHandler := func(message []byte) {
 		wsMarkPriceServeHandler(message, handler, errHandler)
 	}
@@ -303,9 +264,9 @@ func wsKlineServeHandler(message []byte, handler WsKlineHandler, errHandler ErrH
 	handler(event)
 }
 
-func WsKlineServe(symbol string, interval string, handler WsKlineHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := fmt.Sprintf("%s/%s@kline_%s", getWsEndpoint(), strings.ToUpper(symbol), interval)
-	cfg := newWsConfig(endpoint)
+func (c *Client) WsKlineServe(symbol string, interval string, handler WsKlineHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/%s@kline_%s", c.getWsEndpoint(), strings.ToUpper(symbol), interval)
+	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
 	wsHandler := func(message []byte) {
 		wsKlineServeHandler(message, handler, errHandler)
 	}
@@ -330,9 +291,9 @@ func wsTickerServeHandler(message []byte, handler WsTickerHandler, errHandler Er
 	handler(event)
 }
 
-func WsTickerServe(symbol string, handler WsTickerHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := fmt.Sprintf("%s/%s@ticker", getWsEndpoint(), strings.ToUpper(symbol))
-	cfg := newWsConfig(endpoint)
+func (c *Client) WsTickerServe(symbol string, handler WsTickerHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/%s@ticker", c.getWsEndpoint(), strings.ToUpper(symbol))
+	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
 	wsHandler := func(message []byte) {
 		wsTickerServeHandler(message, handler, errHandler)
 	}
@@ -359,9 +320,9 @@ func wsTickerExpireServeHandler(message []byte, handler WsTickerHandler, errHand
 
 // expireDate: for example 220930
 // underlying: for example ETH
-func WsTickerWithExpireServe(underlying string, expireDate string, handler WsTickerHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := fmt.Sprintf("%s/%s@ticker@%s", getWsEndpoint(), strings.ToUpper(underlying), expireDate)
-	cfg := newWsConfig(endpoint)
+func (c *Client) WsTickerWithExpireServe(underlying string, expireDate string, handler WsTickerHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/%s@ticker@%s", c.getWsEndpoint(), strings.ToUpper(underlying), expireDate)
+	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
 	wsHandler := func(message []byte) {
 		wsTickerExpireServeHandler(message, handler, errHandler)
 	}
@@ -388,9 +349,9 @@ func wsOpenInterestServeHandler(message []byte, handler WsOpenInterestHandler, e
 
 // expireDate: for example 220930
 // underlying: for example ETH
-func WsOpenInterestServe(underlying string, expireDate string, handler WsOpenInterestHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := fmt.Sprintf("%s/%s@openInterest@%s", getWsEndpoint(), strings.ToUpper(underlying), expireDate)
-	cfg := newWsConfig(endpoint)
+func (c *Client) WsOpenInterestServe(underlying string, expireDate string, handler WsOpenInterestHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/%s@openInterest@%s", c.getWsEndpoint(), strings.ToUpper(underlying), expireDate)
+	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
 	wsHandler := func(message []byte) {
 		wsOpenInterestServeHandler(message, handler, errHandler)
 	}
@@ -415,9 +376,9 @@ func wsOptionPairServeHandler(message []byte, handler WsOptionPairHandler, errHa
 	handler(event)
 }
 
-func WsOptionPairServe(handler WsOptionPairHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := fmt.Sprintf("%s/option_pair", getWsEndpoint())
-	cfg := newWsConfig(endpoint)
+func (c *Client) WsOptionPairServe(handler WsOptionPairHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/option_pair", c.getWsEndpoint())
+	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
 	wsHandler := func(message []byte) {
 		wsOptionPairServeHandler(message, handler, errHandler)
 	}
@@ -468,7 +429,7 @@ func wsDepthServeHandler(message []byte, handler WsDepthHandler, errHandler ErrH
 
 // levels: [10, 20, 50, 100, 1000]
 // rate: [100, 500, 100] ms, default 500ms while rate is nil
-func WsDepthServe(symbol string, levels string, rate *time.Duration, handler WsDepthHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+func (c *Client) WsDepthServe(symbol string, levels string, rate *time.Duration, handler WsDepthHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	switch levels {
 	case "10":
 	case "20":
@@ -491,8 +452,8 @@ func WsDepthServe(symbol string, levels string, rate *time.Duration, handler WsD
 			return nil, nil, errors.New("invalid rate")
 		}
 	}
-	endpoint := fmt.Sprintf("%s/%s@depth%s%s", getWsEndpoint(), strings.ToUpper(symbol), levels, rateStr)
-	cfg := newWsConfig(endpoint)
+	endpoint := fmt.Sprintf("%s/%s@depth%s%s", c.getWsEndpoint(), strings.ToUpper(symbol), levels, rateStr)
+	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
 	wsHandler := func(message []byte) {
 		wsDepthServeHandler(message, handler, errHandler)
 	}
@@ -516,16 +477,16 @@ func WsDepthServe(symbol string, levels string, rate *time.Duration, handler WsD
 //				    map[string]any{"depth": func(*WsDepthEvent) {}, "kline": func(*WsKlineEvent){}}, func(error){})
 //
 // note: the symbol(underlying) of streamName should be upper.
-func WsCombinedServe(streamName []string, handler map[string]any, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+func (c *Client) WsCombinedServe(streamName []string, handler map[string]any, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	if len(streamName) <= 0 || len(handler) <= 0 {
 		return nil, nil, errors.New("streamName is empty or handler is empty")
 	}
-	endpoint := getCombinedEndpoint()
+	endpoint := c.getCombinedEndpoint()
 	for _, s := range streamName {
 		endpoint += s + "/"
 	}
 	endpoint = endpoint[:len(endpoint)-1]
-	cfg := newWsConfig(endpoint)
+	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
 
 	// TODO: use template after go 1.8
 	tradeKey := "trade"
@@ -786,9 +747,9 @@ type WsOrderTradeUpdate struct {
 // WsUserDataHandler handle WsUserDataEvent
 type WsUserDataHandler func(event *WsUserDataEvent)
 
-func WsUserDataServe(listenKey string, handler WsUserDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
-	endpoint := fmt.Sprintf("%s/%s", getWsEndpoint(), listenKey)
-	cfg := newWsConfig(endpoint)
+func (c *Client) WsUserDataServe(listenKey string, handler WsUserDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+	endpoint := fmt.Sprintf("%s/%s", c.getWsEndpoint(), listenKey)
+	cfg := newWsConfig(endpoint, c.getWsProxyUrl())
 	wsHandler := func(message []byte) {
 		event := new(WsUserDataEvent)
 		err := json.Unmarshal(message, event)

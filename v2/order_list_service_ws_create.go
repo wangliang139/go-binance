@@ -8,8 +8,8 @@ import (
 	"github.com/adshao/go-binance/v2/common/websocket"
 )
 
-// OrderListCreateWsService creates OCO order list
-type OrderListCreateWsService struct {
+// OrderListCreateWsApiService creates OCO order list
+type OrderListCreateWsApiService struct {
 	c          websocket.Client
 	ApiKey     string
 	SecretKey  string
@@ -18,8 +18,8 @@ type OrderListCreateWsService struct {
 }
 
 // NewOrderListCreateWsService init OrderListCreateWsService
-func NewOrderListCreateWsService(apiKey, secretKey string) (*OrderListCreateWsService, error) {
-	conn, err := websocket.NewConnection(WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
+func (c *Client) NewOrderListCreateWsApiService() (*OrderListCreateWsApiService, error) {
+	conn, err := websocket.NewConnection(c.WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
 	if err != nil {
 		return nil, err
 	}
@@ -29,10 +29,10 @@ func NewOrderListCreateWsService(apiKey, secretKey string) (*OrderListCreateWsSe
 		return nil, err
 	}
 
-	return &OrderListCreateWsService{
+	return &OrderListCreateWsApiService{
 		c:         client,
-		ApiKey:    apiKey,
-		SecretKey: secretKey,
+		ApiKey:    c.APIKey,
+		SecretKey: c.SecretKey,
 		KeyType:   common.KeyTypeHmac,
 	}, nil
 }
@@ -152,7 +152,7 @@ func (s *OrderListCreateWsRequest) buildParams() params {
 }
 
 // Do - sends 'orderList.place.oco' request
-func (s *OrderListCreateWsService) Do(requestID string, request *OrderListCreateWsRequest) error {
+func (s *OrderListCreateWsApiService) Do(requestID string, request *OrderListCreateWsRequest) error {
 	rawData, err := websocket.CreateRequest(
 		websocket.NewRequestData(
 			requestID,
@@ -176,7 +176,7 @@ func (s *OrderListCreateWsService) Do(requestID string, request *OrderListCreate
 }
 
 // SyncDo - sends 'orderList.place.oco' request and receives response
-func (s *OrderListCreateWsService) SyncDo(requestID string, request *OrderListCreateWsRequest) (*CreateOrderListWsResponse, error) {
+func (s *OrderListCreateWsApiService) SyncDo(requestID string, request *OrderListCreateWsRequest) (*CreateOrderListWsResponse, error) {
 	rawData, err := websocket.CreateRequest(
 		websocket.NewRequestData(
 			requestID,
@@ -206,22 +206,22 @@ func (s *OrderListCreateWsService) SyncDo(requestID string, request *OrderListCr
 }
 
 // ReceiveAllDataBeforeStop waits until all responses will be received from websocket until timeout expired
-func (s *OrderListCreateWsService) ReceiveAllDataBeforeStop(timeout time.Duration) {
+func (s *OrderListCreateWsApiService) ReceiveAllDataBeforeStop(timeout time.Duration) {
 	s.c.Wait(timeout)
 }
 
 // GetReadChannel returns channel with API response data (including API errors)
-func (s *OrderListCreateWsService) GetReadChannel() <-chan []byte {
+func (s *OrderListCreateWsApiService) GetReadChannel() <-chan []byte {
 	return s.c.GetReadChannel()
 }
 
 // GetReadErrorChannel returns channel with errors which are occurred while reading websocket connection
-func (s *OrderListCreateWsService) GetReadErrorChannel() <-chan error {
+func (s *OrderListCreateWsApiService) GetReadErrorChannel() <-chan error {
 	return s.c.GetReadErrorChannel()
 }
 
 // GetReconnectCount returns count of reconnect attempts by client
-func (s *OrderListCreateWsService) GetReconnectCount() int64 {
+func (s *OrderListCreateWsApiService) GetReconnectCount() int64 {
 	return s.c.GetReconnectCount()
 }
 

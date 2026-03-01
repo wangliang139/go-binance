@@ -29,7 +29,7 @@ func (s *sorOrderTestServiceWsTestSuite) SetupTest() {
 	s.ctrl = gomock.NewController(s.T())
 	s.client = mock.NewMockClient(s.ctrl)
 
-	s.sorOrderTest = &SorOrderTestWsService{
+	s.sorOrderTest = &SorOrderTestWsApiService{
 		c:         s.client,
 		ApiKey:    s.apiKey,
 		SecretKey: s.secretKey,
@@ -67,7 +67,7 @@ type sorOrderTestServiceWsTestSuite struct {
 	price                  string
 	computeCommissionRates bool
 
-	sorOrderTest        *SorOrderTestWsService
+	sorOrderTest        *SorOrderTestWsApiService
 	sorOrderTestRequest *SorOrderTestWsRequest
 }
 
@@ -238,7 +238,7 @@ func (s *sorOrderTestServiceWsTestSuite) TestSorOrderTestSync_EmptySignKeyType()
 }
 
 func (s *sorOrderTestServiceWsTestSuite) reset(apiKey, secretKey, signKeyType string, timeOffset int64) {
-	s.sorOrderTest = &SorOrderTestWsService{
+	s.sorOrderTest = &SorOrderTestWsApiService{
 		c:          s.client,
 		ApiKey:     apiKey,
 		SecretKey:  secretKey,

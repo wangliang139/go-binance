@@ -8,8 +8,8 @@ import (
 	"github.com/adshao/go-binance/v2/common/websocket"
 )
 
-// SorOrderTestWsService tests order using SOR
-type SorOrderTestWsService struct {
+// SorOrderTestWsApiService tests order using SOR
+type SorOrderTestWsApiService struct {
 	c          websocket.Client
 	ApiKey     string
 	SecretKey  string
@@ -18,8 +18,8 @@ type SorOrderTestWsService struct {
 }
 
 // NewSorOrderTestWsService init SorOrderTestWsService
-func NewSorOrderTestWsService(apiKey, secretKey string) (*SorOrderTestWsService, error) {
-	conn, err := websocket.NewConnection(WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
+func (c *Client) NewSorOrderTestWsApiService() (*SorOrderTestWsApiService, error) {
+	conn, err := websocket.NewConnection(c.WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
 	if err != nil {
 		return nil, err
 	}
@@ -29,10 +29,10 @@ func NewSorOrderTestWsService(apiKey, secretKey string) (*SorOrderTestWsService,
 		return nil, err
 	}
 
-	return &SorOrderTestWsService{
+	return &SorOrderTestWsApiService{
 		c:         client,
-		ApiKey:    apiKey,
-		SecretKey: secretKey,
+		ApiKey:    c.APIKey,
+		SecretKey: c.SecretKey,
 		KeyType:   common.KeyTypeHmac,
 	}, nil
 }
@@ -102,7 +102,7 @@ func (s *SorOrderTestWsRequest) buildParams() params {
 }
 
 // Do - sends 'sor.order.test' request
-func (s *SorOrderTestWsService) Do(requestID string, request *SorOrderTestWsRequest) error {
+func (s *SorOrderTestWsApiService) Do(requestID string, request *SorOrderTestWsRequest) error {
 	rawData, err := websocket.CreateRequest(
 		websocket.NewRequestData(
 			requestID,
@@ -126,7 +126,7 @@ func (s *SorOrderTestWsService) Do(requestID string, request *SorOrderTestWsRequ
 }
 
 // SyncDo - sends 'sor.order.test' request and receives response
-func (s *SorOrderTestWsService) SyncDo(requestID string, request *SorOrderTestWsRequest) (*SorOrderTestWsResponse, error) {
+func (s *SorOrderTestWsApiService) SyncDo(requestID string, request *SorOrderTestWsRequest) (*SorOrderTestWsResponse, error) {
 	rawData, err := websocket.CreateRequest(
 		websocket.NewRequestData(
 			requestID,
@@ -156,22 +156,22 @@ func (s *SorOrderTestWsService) SyncDo(requestID string, request *SorOrderTestWs
 }
 
 // ReceiveAllDataBeforeStop waits until all responses will be received from websocket until timeout expired
-func (s *SorOrderTestWsService) ReceiveAllDataBeforeStop(timeout time.Duration) {
+func (s *SorOrderTestWsApiService) ReceiveAllDataBeforeStop(timeout time.Duration) {
 	s.c.Wait(timeout)
 }
 
 // GetReadChannel returns channel with API response data (including API errors)
-func (s *SorOrderTestWsService) GetReadChannel() <-chan []byte {
+func (s *SorOrderTestWsApiService) GetReadChannel() <-chan []byte {
 	return s.c.GetReadChannel()
 }
 
 // GetReadErrorChannel returns channel with errors which are occurred while reading websocket connection
-func (s *SorOrderTestWsService) GetReadErrorChannel() <-chan error {
+func (s *SorOrderTestWsApiService) GetReadErrorChannel() <-chan error {
 	return s.c.GetReadErrorChannel()
 }
 
 // GetReconnectCount returns count of reconnect attempts by client
-func (s *SorOrderTestWsService) GetReconnectCount() int64 {
+func (s *SorOrderTestWsApiService) GetReconnectCount() int64 {
 	return s.c.GetReconnectCount()
 }
 

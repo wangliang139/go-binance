@@ -455,11 +455,6 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 	return data, &res.Header, nil
 }
 
-// SetApiEndpoint set api Endpoint
-func (c *Client) SetApiEndpoint(url string) *Client {
-	c.BaseURL = url
-	return c
-}
 
 // --------- Market Data ---------
 

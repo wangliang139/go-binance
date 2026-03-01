@@ -176,17 +176,6 @@ func newJSON(data []byte) (j *simplejson.Json, err error) {
 	return j, nil
 }
 
-// getApiEndpoint return the base endpoint of the WS according the UseTestnet flag
-func getApiEndpoint() string {
-	if UseTestnet {
-		return BaseApiTestnetUrl
-	}
-	if UseDemo {
-		return BaseApiDemoURL
-	}
-	return BaseApiMainUrl
-}
-
 // NewClient initialize an API client instance with API key and secret key.
 // You should always call this function before using this SDK.
 // Services will be created by the form client.NewXXXService().
@@ -195,7 +184,6 @@ func NewClient(apiKey, secretKey string) *Client {
 		APIKey:     apiKey,
 		SecretKey:  secretKey,
 		KeyType:    common.KeyTypeHmac,
-		BaseURL:    getApiEndpoint(),
 		UserAgent:  "Binance/golang",
 		HTTPClient: http.DefaultClient,
 		Logger:     log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
@@ -215,7 +203,6 @@ func NewProxiedClient(apiKey, secretKey, proxyUrl string) *Client {
 		APIKey:    apiKey,
 		SecretKey: secretKey,
 		KeyType:   common.KeyTypeHmac,
-		BaseURL:   getApiEndpoint(),
 		UserAgent: "Binance/golang",
 		HTTPClient: &http.Client{
 			Transport: tr,
@@ -231,16 +218,62 @@ type Client struct {
 	APIKey     string
 	SecretKey  string
 	KeyType    string
-	BaseURL    string
 	UserAgent  string
 	HTTPClient *http.Client
 	Debug      bool
 	Logger     *log.Logger
 	TimeOffset int64
-	do         doFunc
+	// UseTestnet switch all the WS streams from production to the testnet
+	UseTestnet bool
+	// UseDemo switch all the API endpoints from production to the demo
+	UseDemo  bool
+	ProxyUrl string
+
+	do doFunc
 
 	UsedWeight common.UsedWeight
 	OrderCount common.OrderCount
+}
+
+func (c *Client) SetUseTestnet() {
+	c.UseTestnet = true
+}
+
+func (c *Client) SetUseDemo() {
+	c.UseDemo = true
+}
+
+// getApiEndpoint return the base endpoint of the WS according the UseTestnet flag
+func (c *Client) getApiEndpoint() string {
+	if c.UseTestnet {
+		return BaseApiTestnetUrl
+	}
+	if c.UseDemo {
+		return BaseApiDemoURL
+	}
+	return BaseApiMainUrl
+}
+
+// getWsEndpoint return the base endpoint of the WS according the UseTestnet flag
+func (c *Client) getWsEndpoint() string {
+	if c.UseTestnet {
+		return BaseWsTestnetUrl
+	}
+	if c.UseDemo {
+		return BaseWsDemoURL
+	}
+	return BaseWsMainUrl
+}
+
+func (c *Client) getWsProxyUrl() *string {
+	if c.ProxyUrl == "" {
+		return nil
+	}
+	return &c.ProxyUrl
+}
+
+func (c *Client) SetWsProxyUrl(url string) {
+	c.ProxyUrl = url
 }
 
 func (c *Client) debug(format string, v ...any) {
@@ -259,7 +292,7 @@ func (c *Client) parseRequest(r *request, opts ...RequestOption) (err error) {
 		return err
 	}
 
-	fullURL := fmt.Sprintf("%s%s", c.BaseURL, r.endpoint)
+	fullURL := fmt.Sprintf("%s%s", c.getApiEndpoint(), r.endpoint)
 	if r.recvWindow > 0 {
 		r.setParam(recvWindowKey, r.recvWindow)
 	}
@@ -363,12 +396,6 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 		return nil, apiErr
 	}
 	return data, nil
-}
-
-// SetApiEndpoint set api Endpoint
-func (c *Client) SetApiEndpoint(url string) *Client {
-	c.BaseURL = url
-	return c
 }
 
 // NewPingService init ping service

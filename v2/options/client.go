@@ -250,10 +250,57 @@ type Client struct {
 	Debug      bool
 	Logger     *log.Logger
 	TimeOffset int64
-	do         doFunc
+	// UseTestnet switch all the WS streams from production to the testnet
+	UseTestnet bool
+	// UseDemo switch all the WS streams from production to the demo
+	UseDemo    bool
+	WsProxyUrl string
+
+	do doFunc
 
 	UsedWeight common.UsedWeight
 	OrderCount common.OrderCount
+}
+
+func (c *Client) SetUseTestnet() {
+	c.UseTestnet = true
+}
+
+func (c *Client) SetUseDemo() {
+	c.UseDemo = true
+}
+
+func (c *Client) SetWsProxyUrl(url string) {
+	c.WsProxyUrl = url
+}
+
+func (c *Client) getWsProxyUrl() *string {
+	if c.WsProxyUrl == "" {
+		return nil
+	}
+	return &c.WsProxyUrl
+}
+
+// getWsEndpoint return the base endpoint of the WS according the UseTestnet flag
+func (c *Client) getWsEndpoint() string {
+	if c.UseTestnet {
+		return baseWsTestnetUrl
+	}
+	if c.UseDemo {
+		return baseWsDemoUrl
+	}
+	return baseWsMainUrl
+}
+
+// getCombinedEndpoint return the base endpoint of the combined stream according the UseTestnet flag
+func (c *Client) getCombinedEndpoint() string {
+	if c.UseTestnet {
+		return baseCombinedTestnetURL
+	}
+	if c.UseDemo {
+		return baseCombinedDemoURL
+	}
+	return baseCombinedMainURL
 }
 
 func (c *Client) debug(format string, v ...any) {
@@ -378,12 +425,6 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 		return nil, &res.Header, apiErr
 	}
 	return data, &res.Header, nil
-}
-
-// SetApiEndpoint set api Endpoint
-func (c *Client) SetApiEndpoint(url string) *Client {
-	c.BaseURL = url
-	return c
 }
 
 // ping server

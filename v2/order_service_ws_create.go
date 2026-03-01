@@ -8,8 +8,8 @@ import (
 	"github.com/adshao/go-binance/v2/common/websocket"
 )
 
-// OrderCreateWsService creates order
-type OrderCreateWsService struct {
+// OrderCreateWsApiService creates order
+type OrderCreateWsApiService struct {
 	c          websocket.Client
 	ApiKey     string
 	SecretKey  string
@@ -18,8 +18,8 @@ type OrderCreateWsService struct {
 }
 
 // NewOrderCreateWsService init OrderCreateWsService
-func NewOrderCreateWsService(apiKey, secretKey string) (*OrderCreateWsService, error) {
-	conn, err := websocket.NewConnection(WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
+func (c *Client) NewOrderCreateWsApiService() (*OrderCreateWsApiService, error) {
+	conn, err := websocket.NewConnection(c.WsApiInitReadWriteConn, WebsocketKeepalive, WebsocketTimeoutReadWriteConnection)
 	if err != nil {
 		return nil, err
 	}
@@ -29,11 +29,12 @@ func NewOrderCreateWsService(apiKey, secretKey string) (*OrderCreateWsService, e
 		return nil, err
 	}
 
-	return &OrderCreateWsService{
-		c:         client,
-		ApiKey:    apiKey,
-		SecretKey: secretKey,
-		KeyType:   common.KeyTypeHmac,
+	return &OrderCreateWsApiService{
+		c:          client,
+		ApiKey:     c.APIKey,
+		SecretKey:  c.SecretKey,
+		KeyType:    c.KeyType,
+		TimeOffset: c.TimeOffset,
 	}, nil
 }
 
@@ -112,7 +113,7 @@ func (s *OrderCreateWsRequest) buildParams() params {
 }
 
 // Do - sends 'order.place' request
-func (s *OrderCreateWsService) Do(requestID string, request *OrderCreateWsRequest) error {
+func (s *OrderCreateWsApiService) Do(requestID string, request *OrderCreateWsRequest) error {
 	rawData, err := websocket.CreateRequest(
 		websocket.NewRequestData(
 			requestID,
@@ -136,7 +137,7 @@ func (s *OrderCreateWsService) Do(requestID string, request *OrderCreateWsReques
 }
 
 // SyncDo - sends 'order.place' request and receives response
-func (s *OrderCreateWsService) SyncDo(requestID string, request *OrderCreateWsRequest) (*CreateOrderWsResponse, error) {
+func (s *OrderCreateWsApiService) SyncDo(requestID string, request *OrderCreateWsRequest) (*CreateOrderWsResponse, error) {
 	rawData, err := websocket.CreateRequest(
 		websocket.NewRequestData(
 			requestID,
@@ -166,22 +167,22 @@ func (s *OrderCreateWsService) SyncDo(requestID string, request *OrderCreateWsRe
 }
 
 // ReceiveAllDataBeforeStop waits until all responses will be received from websocket until timeout expired
-func (s *OrderCreateWsService) ReceiveAllDataBeforeStop(timeout time.Duration) {
+func (s *OrderCreateWsApiService) ReceiveAllDataBeforeStop(timeout time.Duration) {
 	s.c.Wait(timeout)
 }
 
 // GetReadChannel returns channel with API response data (including API errors)
-func (s *OrderCreateWsService) GetReadChannel() <-chan []byte {
+func (s *OrderCreateWsApiService) GetReadChannel() <-chan []byte {
 	return s.c.GetReadChannel()
 }
 
 // GetReadErrorChannel returns channel with errors which are occurred while reading websocket connection
-func (s *OrderCreateWsService) GetReadErrorChannel() <-chan error {
+func (s *OrderCreateWsApiService) GetReadErrorChannel() <-chan error {
 	return s.c.GetReadErrorChannel()
 }
 
 // GetReconnectCount returns count of reconnect attempts by client
-func (s *OrderCreateWsService) GetReconnectCount() int64 {
+func (s *OrderCreateWsApiService) GetReconnectCount() int64 {
 	return s.c.GetReconnectCount()
 }
 

@@ -34,17 +34,14 @@ func getEnvOrDefault(key, defaultValue string) string {
 
 // GetClient creates a new Binance client with the configured credentials
 func (c *Config) GetClient() *binance.Client {
-	return binance.NewClient(c.APIKey, c.SecretKey)
-}
-
-// SetupTestnet configures testnet usage based on the config
-func (c *Config) SetupTestnet() {
-	binance.UseTestnet = c.UseTestnet
-}
-
-// SetupDemo configures demo usage based on the config
-func (c *Config) SetupDemo() {
-	binance.UseDemo = c.UseDemo
+	client := binance.NewClient(c.APIKey, c.SecretKey)
+	if c.UseTestnet {
+		client.SetUseTestnet()
+	}
+	if c.UseDemo {
+		client.SetUseDemo()
+	}
+	return client
 }
 
 // Validate checks if the configuration is valid

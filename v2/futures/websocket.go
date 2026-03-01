@@ -20,10 +20,10 @@ type WsConfig struct {
 	Proxy    *string
 }
 
-func newWsConfig(endpoint string) *WsConfig {
+func newWsConfig(endpoint string, proxy *string) *WsConfig {
 	return &WsConfig{
 		Endpoint: endpoint,
-		Proxy:    getWsProxyUrl(),
+		Proxy:    proxy,
 	}
 }
 

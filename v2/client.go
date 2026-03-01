@@ -137,12 +137,6 @@ type CancelReplaceMode string
 
 type MarginAccountBorrowRepayType string
 
-// UseTestnet switch all the API endpoints from production to the testnet
-var UseTestnet = false
-
-// UseDemo switch all the API endpoints from production to the demo
-var UseDemo = false
-
 // Global enums
 const (
 	SideTypeBuy  SideType = "BUY"
@@ -361,18 +355,6 @@ func newJSON(data []byte) (j *simplejson.Json, err error) {
 	return j, nil
 }
 
-// getAPIEndpoint return the base endpoint of the Rest API according the UseTestnet flag
-func getAPIEndpoint() string {
-	if UseTestnet {
-		return BaseAPITestnetURL
-	}
-	if UseDemo {
-		return BaseAPIDemoURL
-	}
-	return BaseAPIMainURL
-}
-
-// NewClient initialize an API client instance with API key and secret key.
 // You should always call this function before using this SDK.
 // Services will be created by the form client.NewXXXService().
 func NewClient(apiKey, secretKey string) *Client {
@@ -380,7 +362,6 @@ func NewClient(apiKey, secretKey string) *Client {
 		APIKey:     apiKey,
 		SecretKey:  secretKey,
 		KeyType:    common.KeyTypeHmac,
-		BaseURL:    getAPIEndpoint(),
 		UserAgent:  "Binance/golang",
 		HTTPClient: http.DefaultClient,
 		Logger:     log.New(os.Stderr, "Binance-golang ", log.LstdFlags),
@@ -401,7 +382,6 @@ func NewProxiedClient(apiKey, secretKey, proxyUrl string) *Client {
 		APIKey:    apiKey,
 		SecretKey: secretKey,
 		KeyType:   common.KeyTypeHmac,
-		BaseURL:   getAPIEndpoint(),
 		UserAgent: "Binance/golang",
 		HTTPClient: &http.Client{
 			Transport: tr,
@@ -432,16 +412,84 @@ type Client struct {
 	APIKey     string
 	SecretKey  string
 	KeyType    string
-	BaseURL    string
+	UseTestnet bool
+	UseDemo    bool
 	UserAgent  string
 	HTTPClient *http.Client
 	Debug      bool
 	Logger     *log.Logger
 	TimeOffset int64
-	do         doFunc
+
+	// ws params
+	WsProxyUrl string
+
+	do doFunc
 
 	UsedWeight common.UsedWeight
 	OrderCount common.OrderCount
+}
+
+func (c *Client) SetUseTestnet() {
+	c.UseTestnet = true
+}
+
+func (c *Client) SetUseDemo() {
+	c.UseDemo = true
+}
+
+func (c *Client) SetWsProxyUrl(url string) {
+	c.WsProxyUrl = url
+}
+
+func (c *Client) getWsProxyUrl() *string {
+	if c.WsProxyUrl == "" {
+		return nil
+	}
+	return &c.WsProxyUrl
+}
+
+// getCombinedEndpoint return the base endpoint of the combined stream according the UseTestnet flag
+func (c *Client) getCombinedEndpoint() string {
+	if c.UseTestnet {
+		return BaseCombinedTestnetURL
+	}
+	if c.UseDemo {
+		return BaseCombinedDemoURL
+	}
+	return BaseCombinedMainURL
+}
+
+// getWsEndpoint return the base endpoint of the WS according the UseTestnet flag
+func (c *Client) getWsEndpoint() string {
+	if c.UseTestnet {
+		return BaseWsTestnetURL
+	}
+	if c.UseDemo {
+		return BaseWsDemoURL
+	}
+	return BaseWsMainURL
+}
+
+// getWsApiEndpoint return the base endpoint of the API WS according the UseTestnet flag
+func (c *Client) getWsApiEndpoint() string {
+	if c.UseTestnet {
+		return BaseWsApiTestnetURL
+	}
+	if c.UseDemo {
+		return BaseWsApiDemoURL
+	}
+	return BaseWsApiMainURL
+}
+
+// getAPIEndpoint return the base endpoint of the Rest API according the UseTestnet flag
+func (c *Client) getAPIEndpoint() string {
+	if c.UseTestnet {
+		return BaseAPITestnetURL
+	}
+	if c.UseDemo {
+		return BaseAPIDemoURL
+	}
+	return BaseAPIMainURL
 }
 
 func (c *Client) debug(format string, v ...any) {
@@ -460,7 +508,7 @@ func (c *Client) parseRequest(r *request, opts ...RequestOption) (err error) {
 		return err
 	}
 
-	fullURL := fmt.Sprintf("%s%s", c.BaseURL, r.endpoint)
+	fullURL := fmt.Sprintf("%s%s", c.getAPIEndpoint(), r.endpoint)
 	if r.recvWindow > 0 {
 		r.setParam(recvWindowKey, r.recvWindow)
 	}
@@ -570,12 +618,6 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 		return nil, apiErr
 	}
 	return data, nil
-}
-
-// SetApiEndpoint set api Endpoint
-func (c *Client) SetApiEndpoint(url string) *Client {
-	c.BaseURL = url
-	return c
 }
 
 // NewPingService init ping service
@@ -1473,42 +1515,3 @@ func (c *Client) NewDualInvestmentService() *DualInvestmentService {
 	return &DualInvestmentService{c: c}
 }
 
-// NewOrderCreateWsService init order creation websocket service
-func (c *Client) NewOrderCreateWsService() (*OrderCreateWsService, error) {
-	return NewOrderCreateWsService(c.APIKey, c.SecretKey)
-}
-
-// NewOrderListCreateWsService init order list creation websocket service (OCO)
-func (c *Client) NewOrderListCreateWsService() (*OrderListCreateWsService, error) {
-	return NewOrderListCreateWsService(c.APIKey, c.SecretKey)
-}
-
-// NewOrderListPlaceWsService init order list placement websocket service (deprecated OCO)
-func (c *Client) NewOrderListPlaceWsService() (*OrderListPlaceWsService, error) {
-	return NewOrderListPlaceWsService(c.APIKey, c.SecretKey)
-}
-
-// NewOrderListPlaceOtoWsService init order list placement websocket service (OTO)
-func (c *Client) NewOrderListPlaceOtoWsService() (*OrderListPlaceOtoWsService, error) {
-	return NewOrderListPlaceOtoWsService(c.APIKey, c.SecretKey)
-}
-
-// NewOrderListPlaceOtocoWsService init order list placement websocket service (OTOCO)
-func (c *Client) NewOrderListPlaceOtocoWsService() (*OrderListPlaceOtocoWsService, error) {
-	return NewOrderListPlaceOtocoWsService(c.APIKey, c.SecretKey)
-}
-
-// NewOrderListCancelWsService init order list cancellation websocket service
-func (c *Client) NewOrderListCancelWsService() (*OrderListCancelWsService, error) {
-	return NewOrderListCancelWsService(c.APIKey, c.SecretKey)
-}
-
-// NewSorOrderPlaceWsService init SOR order placement websocket service
-func (c *Client) NewSorOrderPlaceWsService() (*SorOrderPlaceWsService, error) {
-	return NewSorOrderPlaceWsService(c.APIKey, c.SecretKey)
-}
-
-// NewSorOrderTestWsService init SOR order testing websocket service
-func (c *Client) NewSorOrderTestWsService() (*SorOrderTestWsService, error) {
-	return NewSorOrderTestWsService(c.APIKey, c.SecretKey)
-}

@@ -32,7 +32,7 @@ func (s *orderListPlaceOtoServiceWsTestSuite) SetupTest() {
 	s.ctrl = gomock.NewController(s.T())
 	s.client = mock.NewMockClient(s.ctrl)
 
-	s.orderListPlaceOto = &OrderListPlaceOtoWsService{
+	s.orderListPlaceOto = &OrderListPlaceOtoWsApiService{
 		c:         s.client,
 		ApiKey:    s.apiKey,
 		SecretKey: s.secretKey,
@@ -77,7 +77,7 @@ type orderListPlaceOtoServiceWsTestSuite struct {
 	pendingQuantity   string
 	listClientOrderID string
 
-	orderListPlaceOto        *OrderListPlaceOtoWsService
+	orderListPlaceOto        *OrderListPlaceOtoWsApiService
 	orderListPlaceOtoRequest *OrderListPlaceOtoWsRequest
 }
 
@@ -214,7 +214,7 @@ func (s *orderListPlaceOtoServiceWsTestSuite) TestOrderListPlaceOtoSync_EmptySig
 }
 
 func (s *orderListPlaceOtoServiceWsTestSuite) reset(apiKey, secretKey, signKeyType string, timeOffset int64) {
-	s.orderListPlaceOto = &OrderListPlaceOtoWsService{
+	s.orderListPlaceOto = &OrderListPlaceOtoWsApiService{
 		c:          s.client,
 		ApiKey:     apiKey,
 		SecretKey:  secretKey,
