@@ -682,7 +682,7 @@ func (c *Client) WsUserDataServe(listenKey string, handler WsUserDataHandler, er
 // WsUserDataServeSignature serves user data handler using signature-based subscription via WebSocket API.
 // This is the recommended method as listen key management has been deprecated by Binance.
 // It connects to the WebSocket API endpoint and subscribes to user data stream using signature authentication.
-func (c *Client) WsUserDataServeSignature(keyType string, timeOffset int64, handler WsUserDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
+func (c *Client) WsUserDataServeSignature(handler WsUserDataHandler, errHandler ErrHandler) (doneC, stopC chan struct{}, err error) {
 	cfg := newWsConfig(c.getWsApiEndpoint(), c.getProxyUrl())
 
 	doneC = make(chan struct{})
@@ -698,8 +698,8 @@ func (c *Client) WsUserDataServeSignature(keyType string, timeOffset int64, hand
 		uuid.New().String(),
 		c.APIKey,
 		c.SecretKey,
-		timeOffset,
-		keyType,
+		c.TimeOffset,
+		c.KeyType,
 	)
 	subscribeRequest, err := websocket.CreateRequest(
 		reqData,

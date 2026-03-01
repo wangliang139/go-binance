@@ -125,12 +125,12 @@ func main() {
 	// Subscribe to user data stream using signature-based authentication
 	// This is the recommended method as listen key management has been deprecated
 	c := binance.NewClient(apiKey, secretKey)
+	c.KeyType = keyType
+	c.TimeOffset = timeOffset
 	if useTestnet {
 		c.SetUseTestnet()
 	}
 	doneC, stopC, err := c.WsUserDataServeSignature(
-		keyType,
-		timeOffset,
 		userDataHandler,
 		errHandler,
 	)
