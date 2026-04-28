@@ -312,26 +312,68 @@ func (c *Client) getWsApiEndpoint() string {
 	return BaseWsApiMainURL
 }
 
-// getWsEndpoint return the base endpoint of the WS according the UseTestnet flag
-func (c *Client) getWsEndpoint() string {
+// getWsPublicEndpoint return the base endpoint of the WS according the UseTestnet flag
+func (c *Client) getWsPublicEndpoint() string {
 	if c.UseTestnet {
-		return BaseWsTestnetUrl
+		return BaseWsTestnetURL
 	}
 	if c.UseDemo {
 		return BaseWsDemoURL
 	}
-	return BaseWsMainUrl
+	return BaseWsPublicURL
 }
 
-// getCombinedEndpoint return the base endpoint of the combined stream according the UseTestnet flag
-func (c *Client) getCombinedEndpoint() string {
+// getWsMarketEndpoint return the base endpoint of the WS according the UseTestnet flag
+func (c *Client) getWsMarketEndpoint() string {
+	if c.UseTestnet {
+		return BaseWsTestnetURL
+	}
+	if c.UseDemo {
+		return BaseWsDemoURL
+	}
+	return BaseWsMarketURL
+}
+
+// getWsPrivateEndpoint return the base endpoint of the WS according the UseTestnet flag
+func (c *Client) getWsPrivateEndpoint() string {
+	if c.UseTestnet {
+		return BaseWsTestnetURL
+	}
+	if c.UseDemo {
+		return BaseWsDemoURL
+	}
+	return BaseWsPrivateURL
+}
+
+// getCombinedPublicEndpoint return the base endpoint of the combined stream according the UseTestnet flag
+func (c *Client) getCombinedPublicEndpoint() string {
 	if c.UseTestnet {
 		return BaseCombinedTestnetURL
 	}
 	if c.UseDemo {
 		return BaseCombinedDemoURL
 	}
-	return BaseCombinedMainURL
+	return BaseCombinedPublicURL
+}
+
+func (c *Client) getCombinedMarketEndpoint() string {
+	if c.UseTestnet {
+		return BaseCombinedTestnetURL
+	}
+	if c.UseDemo {
+		return BaseCombinedDemoURL
+	}
+	return BaseCombinedMarketURL
+}
+
+func (c *Client) getCombinedPrivateEndpoint() string {
+	if c.UseTestnet {
+		return BaseCombinedTestnetURL
+	}
+	if c.UseDemo {
+		return BaseCombinedDemoURL
+	}
+	return BaseCombinedPrivateURL
 }
 
 func (c *Client) debug(format string, v ...any) {
